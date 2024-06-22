@@ -5,13 +5,13 @@ const { token, testServer, clientID } = require('../../../config')
 module.exports = (client) => {
     client.handleCommands = async () => {
         // Registring Commands
-        const commandFolders = fs.readdirSync('./Commands')
+        const commandFolders = fs.readdirSync('./commands')
         for (const folder of commandFolders) {
-            const commandFiles = fs.readdirSync(`./Commands/${folder}`).filter((file) => file.endsWith('.js')) // Read Folders In Commands Folder
+            const commandFiles = fs.readdirSync(`./commands/${folder}`).filter((file) => file.endsWith('.js')) // Read Folders In Commands Folder
 
             const { commands, commandArray } = client
             for (const file of commandFiles) {
-                const command = require(`../../../Commands/${folder}/${file}`) // Read Files Of Command Folder
+                const command = require(`../../../commands/${folder}/${file}`) // Read Files Of Command Folder
                 commands.set(command.data.name, command) // Register Command
                 commandArray.push(command.data.toJSON())
             }

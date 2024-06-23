@@ -1,49 +1,57 @@
 const {SlashCommandBuilder, EmbedBuilder} = require('discord.js');
-const pagination = require('../../src/utils/pagination');
+const pagination = require('../../src/utils/send-paginated-message');
+const createEmbed = require('../../src/utils/create-embed');
 const axios = require('axios');
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('communities')
         .setDescription('Command to get all registered Communities')
         .addStringOption(option =>
-            option.setName('languages')
-                .setDescription('Community Language')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'Spanish', value: 'spanish' },
-                    { name: 'English', value: 'english' },
-                    { name: 'All', value: 'all' }
-                )),
+            option.setName('location')
+                .setDescription('Filter Communities by Country or City')
+                .setRequired(false)
+        )
+        .addBooleanOption(option =>
+            option.setName('online')
+                .setDescription('Show Online Communities')
+                .setRequired(false)
+        ),
     async execute(interaction, client) {
-        let result = await axios.get('https://angular-hub.com/api/v1/communities');
-        let communities = [];
-        // const languageProperty = interaction.options._hoistedOptions.filter(x=>x.name ==='languages');
-        // if (languageOption === "all") {
-            communities = result.data;
-        // } else {
-        //     communities = result.data.filter(podcast => podcast.language.toLowerCase() === languageOption);
-        // }
 
-        const embeds = [];
-        communities.map(async x => {
-            embeds.push(createEmbed(x))
-        })
-        const myEmbed = [];
-        for (var i = 0; i < 10; i++) {
-            myEmbed.push(new EmbedBuilder().setDescription('Hi'))
+        try {
+            let result = await axios.get('https://angular-hub.com/api/v1/communities');
+            let communities = result.data;
+            const locationFilter = interaction.options._hoistedOptions.filter(x => x.name === 'location');
+            const onlineFilter = interaction.options._hoistedOptions.filter(x => x.name === 'online');
+            const locationOption = locationFilter.length === 0 ? undefined : locationFilter[0].value;
+            const onlineOption = onlineFilter.length === 0 ? undefined : onlineFilter[0].value;
+
+            if (locationOption) {
+                communities = communities.filter(x =>
+                    x.location?.toLowerCase().includes(locationOption.toLowerCase()));
+            }
+            if (onlineOption) {
+                communities = communities.filter(x =>
+                    x.location?.toLowerCase().includes('online'));
+            }
+            if (communities.length > 0) {
+                const embeds = [];
+                communities.map(async x => {
+                    embeds.push(createEmbed(
+                        x.name,
+                        x.url,
+                        {name: 'Type: ' + x.type},
+                        "https://angular-hub.com/" + x.logo,
+                        `Location: ${x.location}\nTwitter: ${x.twitter ?? 'No Twitter Account'}`
+                    ))
+                })
+                await pagination(interaction, embeds);
+            } else {
+                interaction.reply({content: 'No Results Found!', ephemeral: true});
+            }
+        } catch (e) {
+            console.error(e);
         }
-        await pagination(interaction, embeds);
     }
-
-}
-
-function createEmbed(content) {
-    console.log(content);
-    return new EmbedBuilder()
-        .setColor(0x0099FF)
-        .setTitle(content.name)
-        .setURL(content.url)
-        .setAuthor({name: 'Language:' + content.language})
-        .setDescription(`Location: ${content.location}\nTwitter: ${content.twitter}`)
-        .setThumbnail("https://angular-hub.com/" + content.logo)
 }

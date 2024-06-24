@@ -1,6 +1,7 @@
 const {SlashCommandBuilder, EmbedBuilder} = require('discord.js');
 const pagination = require('../../src/utils/send-paginated-message');
 const createEmbed = require('../../src/utils/create-embed');
+const getLogo = require('../../src/utils/get-logo');
 const axios = require('axios');
 
 module.exports = {
@@ -37,7 +38,7 @@ module.exports = {
                         x.name,
                         x.url,
                         {name: 'Language:' + x.language},
-                        "https://angular-hub.com/" + x.logo,
+                        getLogo(x.logo),
                         undefined
                     ))
                 })

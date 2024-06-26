@@ -30,7 +30,7 @@ module.exports = async (interaction, embeds)=>{
         ephemeral: true // Makes the message ephemeral
     });
 
-    const collector = message.createMessageComponentCollector({ time: 60000 });
+    const collector = message.createMessageComponentCollector({ time: 120000 });
 
     collector.on('collect', async (buttonInteraction) => {
         if (buttonInteraction.customId === 'next' && currentPage < totalPages - 1) {

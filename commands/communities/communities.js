@@ -12,13 +12,11 @@ module.exports = {
             option.setName('location')
                 .setDescription('Filter Communities by Country or City')
                 .setRequired(false)
-                .autocomplete(true)
         )
         .addBooleanOption(option =>
             option.setName('online')
                 .setDescription('Show Online Communities')
                 .setRequired(false)
-                .autocomplete(true)
         ),
     async execute(interaction, client) {
 
